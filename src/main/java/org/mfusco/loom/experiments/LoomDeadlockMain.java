@@ -18,9 +18,12 @@ public class LoomDeadlockMain {
             // I/O thread create a v thread on itself
             Thread vThread = vThreadFactory.newThread(() -> {
                 eventLoop.execute(() -> {
-                    if (lockAcquired.join()) doWithLock(lock);
+                    assert lock.isLocked();
+                    doWithLock(lock);
                 });
-                if (lockAcquired.join()) doWithLock(lock);
+                lockAcquired.join();
+                assert lock.isLocked();
+                doWithLock(lock);
             });
             vThread.start();
         });

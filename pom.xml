@@ -18,6 +18,7 @@
                     <source>20</source>
                     <target>20</target>
                     <compilerArgument>--enable-preview</compilerArgument>
+                    <compilerArgument>--add-modules jdk.incubator.concurrent</compilerArgument>
                 </configuration>
             </plugin>
         </plugins>

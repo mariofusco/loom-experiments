@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public class LoomFairnessMain {
 
-    private static final boolean USE_VIRTUAL_THREADS = true;
+    private static final boolean USE_VIRTUAL_THREADS = false;
 
     private static final int EXEC_NR = 8 * Runtime.getRuntime().availableProcessors();
 

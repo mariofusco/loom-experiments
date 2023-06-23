@@ -1,4 +1,4 @@
-package org.mfusco.loom.experiments;
+package org.mfusco.loom.experiments.threadlocal;
 
 public class ThreadLocalMain {
 

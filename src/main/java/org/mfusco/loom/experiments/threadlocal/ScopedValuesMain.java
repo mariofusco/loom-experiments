@@ -1,4 +1,4 @@
-package org.mfusco.loom.experiments;
+package org.mfusco.loom.experiments.threadlocal;
 
 import jdk.incubator.concurrent.ScopedValue;
 

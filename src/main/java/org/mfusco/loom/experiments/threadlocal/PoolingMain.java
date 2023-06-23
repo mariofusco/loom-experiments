@@ -1,4 +1,4 @@
-package org.mfusco.loom.experiments;
+package org.mfusco.loom.experiments.threadlocal;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -11,13 +11,24 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 public class PoolingMain {
-    private static final boolean USE_VIRTUAL_THREADS = false;
+    private static final boolean USE_VIRTUAL_THREADS = true;
 
     private static final int PARALLEL_TASK = 1_000;
 
-    private static final ThreadLocal<ExpensiveResource> resourcePool = new ThreadLocal<>().withInitial(ExpensiveResource::new);
+//    private static final ThreadLocal<ExpensiveResource> resourcePool = ThreadLocal.withInitial(ExpensiveResource::new);
+    private static final ThreadLocal<ExpensiveResource> resourcePool = createThreadLocal();
+
+    static <T> ThreadLocal<T> createThreadLocal() {
+        try {
+            return (ThreadLocal<T>) Class.forName("jdk.internal.misc.CarrierThreadLocal").getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+//        return new ThreadLocal<>();
+    }
 
     public static void main(String[] args) {
+        System.out.println("using pool: " + resourcePool.getClass().getName());
         final Instant start = Instant.now();
         List<Integer> result = calculateResultsInParallel(PARALLEL_TASK, USE_VIRTUAL_THREADS);
         long duration = Duration.between(start, Instant.now()).toMillis();
@@ -48,8 +59,20 @@ public class PoolingMain {
     }
 
     private static int useResource(int id) {
-//        return new ExpensiveResource().increment(id);
-        return resourcePool.get().increment(id);
+        return getPooledResource().increment(id);
+    }
+
+    private static ExpensiveResource getResource() {
+        return new ExpensiveResource();
+    }
+
+    private static ExpensiveResource getPooledResource() {
+        ExpensiveResource resource = resourcePool.get();
+        if (resource == null) {
+            resource = new ExpensiveResource();
+            resourcePool.set(resource);
+        }
+        return resource;
     }
 
     private static Consumer<Runnable> createRunner(boolean useVirtualThreads) {

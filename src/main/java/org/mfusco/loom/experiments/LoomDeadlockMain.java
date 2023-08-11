@@ -18,12 +18,9 @@ public class LoomDeadlockMain {
             // I/O thread create a v thread on itself
             Thread vThread = vThreadFactory.newThread(() -> {
                 eventLoop.execute(() -> {
-                    assert lock.isLocked();
-                    doWithLock(lock);
+                    if (lockAcquired.join()) doWithLock(lock);
                 });
-                lockAcquired.join();
-                assert lock.isLocked();
-                doWithLock(lock);
+                if (lockAcquired.join()) doWithLock(lock);
             });
             vThread.start();
         });
@@ -32,7 +29,7 @@ public class LoomDeadlockMain {
         try {
             System.out.println("Lock acquired from " + Thread.currentThread());
             lockAcquired.complete(true);
-            System.out.println("Awaiting both threads to try acquire the lock");
+            System.out.println("Awaiting both threads to try require the lock");
             while (lock.getQueueLength() != 2) {
                 Thread.yield();
             }

@@ -5,15 +5,23 @@ public class ThreadLocalMain {
     public static void main(String[] args) {
         var server = new Server();
 
-        Thread authorized = new Thread(() -> callServer(server, true), "Authorized");
-        Thread notAuthorized = new Thread(() -> callServer(server, false), "NOT Authorized");
+        var authorized = Thread.ofVirtual().name("Authorized")
+                .unstarted(() -> callServer(server, true));
+        var notAuthorized = Thread.ofVirtual().name("NOT Authorized")
+                .unstarted(() -> callServer(server, false));
 
         authorized.start();
         notAuthorized.start();
+
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void callServer(Server server, boolean auth) {
-        String result = server.serve(new Request(auth));
+        var result = server.serve(new Request(auth));
         System.out.println( "thread " + Thread.currentThread().getName() + " got result " + result );
     }
 
@@ -46,9 +54,7 @@ public class ThreadLocalMain {
         }
     }
 
-    enum RightsLevel {
-        ADMIN, GUEST
-    }
+    enum RightsLevel { ADMIN, GUEST }
 
     record Principal(RightsLevel rights) {
         public boolean canOpen() {

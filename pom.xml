@@ -8,6 +8,23 @@
     <name>Experiments with Project Loom</name>
     <version>1.0.0-SNAPSHOT</version>
 
+    <properties>
+        <version.jmh>1.37</version.jmh>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${version.jmh}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${version.jmh}</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -17,8 +34,10 @@
                 <configuration>
                     <source>20</source>
                     <target>20</target>
-                    <compilerArgument>--enable-preview</compilerArgument>
-                    <compilerArgument>--add-modules jdk.incubator.concurrent</compilerArgument>
+                    <compilerArgs>
+                        <arg>--enable-preview</arg>
+                        <arg>--add-modules=jdk.incubator.concurrent</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

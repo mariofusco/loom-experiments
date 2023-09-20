@@ -13,14 +13,19 @@ import java.util.function.Consumer;
 public class PoolingMain {
     private static final boolean USE_POOLING = false;
 
-    private static final boolean USE_VIRTUAL_THREADS = true;
+    private static final boolean USE_VIRTUAL_THREADS = false;
 
-    private static final int PARALLEL_TASK = 1_000;
+    private static final int PARALLEL_TASK = 500;
 
-    private static final ThreadLocal<ExpensiveResource> RESOURCE_POOL = new ThreadLocal<>(); // createCarrierThreadLocal();
+    private static final ThreadLocal<ExpensiveResource> RESOURCE_POOL = new ThreadLocal<>();
+
+//    private static final ThreadLocal<ExpensiveResource> RESOURCE_POOL = createCarrierThreadLocal();
 
     public static void main(String[] args) {
-        System.out.println("using pool: " + RESOURCE_POOL.getClass().getName());
+        if (USE_POOLING) {
+            System.out.println("using pool: " + RESOURCE_POOL.getClass().getName());
+        }
+
         final Instant start = Instant.now();
         List<Integer> result = calculateResultsInParallel(PARALLEL_TASK, USE_VIRTUAL_THREADS);
         long duration = Duration.between(start, Instant.now()).toMillis();

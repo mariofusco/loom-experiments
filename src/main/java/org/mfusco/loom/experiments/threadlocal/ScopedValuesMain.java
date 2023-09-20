@@ -1,7 +1,5 @@
 package org.mfusco.loom.experiments.threadlocal;
 
-import jdk.incubator.concurrent.ScopedValue;
-
 public class ScopedValuesMain {
 
     public static void main(String[] args) {

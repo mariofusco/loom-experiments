@@ -10,7 +10,7 @@ public class LoomDeadlockMain {
 
     public static void main(String[] args) {
         var lock = new ReentrantLock(true);
-        var lockAcquired = new CompletableFuture<Boolean>();
+        var lockAcquired = new CompletableFuture<Void>();
         var eventLoop = Executors.newSingleThreadExecutor();
         var vThreadFactory = createVirtualThreadFactory(eventLoop);
 
@@ -18,9 +18,9 @@ public class LoomDeadlockMain {
             // I/O thread create a v thread on itself
             Thread vThread = vThreadFactory.newThread(() -> {
                 eventLoop.execute(() -> {
-                    if (lockAcquired.join()) doWithLock(lock);
+                    doWithLock(lockAcquired, lock);
                 });
-                if (lockAcquired.join()) doWithLock(lock);
+                doWithLock(lockAcquired, lock);
             });
             vThread.start();
         });
@@ -28,7 +28,7 @@ public class LoomDeadlockMain {
         lock.lock();
         try {
             System.out.println("Lock acquired from " + Thread.currentThread());
-            lockAcquired.complete(true);
+            lockAcquired.complete(null);
             System.out.println("Awaiting both threads to try require the lock");
             while (lock.getQueueLength() != 2) {
                 Thread.yield();
@@ -39,7 +39,8 @@ public class LoomDeadlockMain {
         }
     }
 
-    private static void doWithLock(ReentrantLock lock) {
+    private static void doWithLock(CompletableFuture<Void> lockAcquired, ReentrantLock lock) {
+        lockAcquired.join();
         System.out.println("Try to acquire lock from " + Thread.currentThread());
         lock.lock();
         System.err.println("This never happens :(");
